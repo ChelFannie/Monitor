@@ -13,14 +13,14 @@
             </el-form-item>
             <el-form-item label="停售时间">
               <el-date-picker
-                v-model="form.outDate"
+                v-model="form.stopSaleTime"
                 type="datetime"
                 placeholder="选择日期"
                 value-format="yyyy-MM-dd HH:mm:ss">
               </el-date-picker>
             </el-form-item>
             <el-form-item label="赛事编号" v-if="activeName == 'first'">
-              <el-input v-model="form.systemUnionid" maxlength="30"></el-input>
+              <el-input v-model="form.matchUniqueId" maxlength="30"></el-input>
             </el-form-item>
             <el-form-item label="赛果" v-if="activeName == 'first'">
               <el-select v-model="form.regFrom" placeholder="请选择">
@@ -33,9 +33,9 @@
               </el-select>
             </el-form-item>
             <el-form-item label="类型" v-if="activeName == 'first'">
-              <el-select v-model="form.type" placeholder="请选择">
+              <el-select v-model="form.matchType" placeholder="请选择">
                 <el-option
-                  v-for="item in type"
+                  v-for="item in competitiveType"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value">
@@ -96,9 +96,9 @@
             </el-table-column>
             <el-table-column label="操作" width="200" align="center">
               <template slot-scope="scope">
-                <el-button @click="handleClick(scope.row)" type="text" size="small">查看赛果</el-button>
+                <!-- <el-button @click="handleClick(scope.row)" type="text" size="small">查看赛果</el-button>
                 <el-button type="text" size="small">开售</el-button>
-                <el-button type="text" size="small">停售</el-button>
+                <el-button type="text" size="small">停售</el-button> -->
               </template>
             </el-table-column>
           </el-table>
@@ -166,6 +166,9 @@ export default {
     return {
       activeName: 'first',
       form: {
+        matchUniqueId: '',
+        matchType: '',
+        stopSaleTime: '',
         createDate: '',
         outDate: '',
         type: '',
@@ -189,6 +192,10 @@ export default {
       ],
       digitalData: [],
       highData: [],
+      competitiveType: [
+        {value: '1', label: '足球'},
+        {value: '2', label: '篮球'}
+      ],
       type: [
         {value: '1', label: '竞彩'},
         {value: '2', label: '数字彩'},
@@ -220,59 +227,43 @@ export default {
   },
   methods: {
     getData () {
+      this.searchFlag || Object.keys(this.form).map(key => {
+        this.form[key] = ''
+      })
+      let nullFlag = false
+      Object.keys(this.form).map(key => {
+        this.form[key] !== '' && (nullFlag = true)
+      })
+      nullFlag || (this.searchFlag = false)
       let params = {
-        // ...this.form,
+        ...this.form,
         pageIndex: this.pageIndex,
         pageSize: this.pageSize
       }
       req('getMatchList', params)
         .then(res => {
-          if (res.data.code === '00000') {
-            this.competitiveData = res.data.data.result
-            this.dataTotal = res.data.data.totalCount
+          if (res.code === '00000') {
+            this.competitiveData = res.data.result
+            this.dataTotal = res.data.totalCount
           } else {
             this.$message({
               type: 'error',
-              message: res.data.msg
+              message: res.msg
             })
           }
         })
-      // this.searchFlag || Object.keys(this.form).map(key => {
-      //   this.form[key] = ''
-      // })
-      // let nullFlag = false
-      // Object.keys(this.form).map(key => {
-      //   this.form[key] !== '' && (nullFlag = true)
-      // })
-      // nullFlag || (this.searchFlag = false)
-      // let memberParams = {
-      //   ...this.form,
-      //   pageIndex: this.pageIndex,
-      //   pageSize: this.pageSize
-      // }
-      // this.$ajax.post('/memberManage/getMemberListPage.json', memberParams)
-      // req('getMemberListData', memberParams)
-      //   .then(res => {
-      //     if (res.data.code === '00000') {
-      //     } else {
-      //       this.$message({
-      //         type: 'error',
-      //         message: res.data.msg
-      //       })
-      //     }
-      //   })
     },
     search () {
-      console.log(this.form)
-      // this.searchFlag = true
-      // this.getData()
+      this.searchFlag = true
+      this.pageIndex = 1
+      this.getData()
     },
     empty () {
       Object.keys(this.form).map(key => {
         this.form[key] = ''
       })
       this.searchFlag = false
-      this.page = 1
+      this.pageIndex = 1
       this.getData()
     },
     // 双击行数据

@@ -57,8 +57,6 @@
           </el-form-item>
         </i-form>
       </div>
-      <div slot="tableHead">
-      </div>
       <el-table
         ref="multipleTable"
         :data="tableData"
@@ -92,6 +90,7 @@
   </div>
 </template>
 <script>
+import req from '../../api/shop-list'
 import address from '../../assets/address.js'
 export default {
   data () {
@@ -110,13 +109,13 @@ export default {
         // realName: ''
       },
       tableColumn: [
-        {prop: 'memberName', label: '站点', width: '120'},
-        {prop: 'systemUnionid', label: '最大出票数量', width: '220'},
+        {prop: 'storeName', label: '站点', width: '120'},
+        {prop: 'systemUnionid1', label: '最大出票数量', width: '120'},
         {prop: 'dataTime', label: '单票最大金额', width: '120'},
         {prop: 'mobile', label: '出票总额', width: '120'},
         {prop: 'regFrom', label: '兑奖金额', width: '120'},
-        {prop: 'status', label: '地区', width: '120'},
-        {prop: 'status', label: '彩类', width: '120'}
+        {prop: 'region', label: '地区', width: '150'},
+        {prop: 'type', label: '彩类', width: '120'}
       ],
       regFromOptions: [
         {value: '1', label: '中石化'},
@@ -155,11 +154,11 @@ export default {
     }
   },
   created () {
-    if (localStorage.getItem('lastRouter') === '/member/user-basic-information') {
-      this.dataTotal = JSON.parse(localStorage.getItem('page')).total
-      this.pageIndex = JSON.parse(localStorage.getItem('page')).page
-    }
-    // this.getData()
+    // if (localStorage.getItem('lastRouter') === '/member/user-basic-information') {
+    //   this.dataTotal = JSON.parse(localStorage.getItem('page')).total
+    //   this.pageIndex = JSON.parse(localStorage.getItem('page')).page
+    // }
+    this.getData()
   },
   methods: {
     getData () {
@@ -171,27 +170,41 @@ export default {
         this.form[key] !== '' && (nullFlag = true)
       })
       nullFlag || (this.searchFlag = false)
-      // let memberParams = {
-      //   ...this.form,
-      //   pageIndex: this.pageIndex,
-      //   pageSize: this.pageSize
-      // }
-      // this.$ajax.post('/memberManage/getMemberListPage.json', memberParams)
-      // req('getMemberListData', memberParams)
-      //   .then(res => {
-      //     if (res.data.code === '00000') {
-      //     } else {
-      //       this.$message({
-      //         type: 'error',
-      //         message: res.data.msg
-      //       })
-      //     }
-      //   })
+      let memberParams = {
+        ...this.form,
+        pageIndex: this.pageIndex,
+        pageSize: this.pageSize
+      }
+      req('getStoreList', memberParams)
+        .then(res => {
+          if (res.code === '00000') {
+            res.data.result.map(resVal => {
+              address.map(val => {
+                if (val.value === resVal.provinceCode) {
+                  val.children.map(chidVal => {
+                    if (chidVal.value === resVal.cityCode) {
+                      resVal.region = val.label.split('(')[0] + chidVal.label
+                    }
+                  })
+                }
+              })
+              resVal.type = '竞彩'
+            })
+            this.tableData = res.data.result
+            this.dataTotal = res.data.totalCount
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.msg
+            })
+          }
+        })
     },
     search () {
       console.log(this.form)
-      // this.searchFlag = true
-      // this.getData()
+      this.pageIndex = 1
+      this.searchFlag = true
+      this.getData()
     },
     empty () {
       Object.keys(this.form).map(key => {
@@ -204,7 +217,7 @@ export default {
     // 双击行数据
     rowClick (row, event, column) {
       localStorage.setItem('page', JSON.stringify({page: this.pageIndex, total: this.dataTotal}))
-      this.$router.push({name: '用户基本信息', params: {systemUnionId: row.systemUnionid}})
+      this.$router.push({name: '店铺信息', params: {storeCode: row.systemUnionid}})
     },
     handleSizeChange () {
 

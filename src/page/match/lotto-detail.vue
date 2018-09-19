@@ -1,6 +1,6 @@
 <template>
   <div class="lotto-detail">
-      <div class="top">彩期信息 <el-button class="return" size="medium" type="primary">返回</el-button></div>
+      <div class="top">彩期信息 <el-button class="return" size="medium" type="primary" @click="goBack">返回</el-button></div>
       <div class="title">超级大乐透</div>
       <div class="main">
         <div class="row">
@@ -33,7 +33,9 @@ export default {
 
   },
   methods: {
-
+    goBack () {
+      this.$router.push({name: '赛事/彩期'})
+    }
   }
 }
 </script>

@@ -115,7 +115,7 @@ export default {
     .el-menu-item.is-active{
         background-color: #4dafdb !important;
         color: #fff !important;
-        border-radius: 10px;
+        border-top: 1px solid #f4f4f4;
     }
 }
 </style>

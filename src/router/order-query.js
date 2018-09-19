@@ -7,7 +7,7 @@ export default [{
   component: Blank,
   children: [{
     path: 'order-List',
-    name: '订单查询',
+    name: '订单列表',
     component: OrderList
   }, {
     path: 'order-information',

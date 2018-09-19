@@ -37,7 +37,7 @@ instance.interceptors.response.use((response) => {
     localStorage.removeItem('token')
     router.push({name: '登陆', query: {redirect: router.currentRoute.fullPath}})
   }
-  return response
+  return response.data
 }, (error) => {
   switch (error.response && error.response.status) {
     case 400:

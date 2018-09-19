@@ -1,6 +1,6 @@
 <template>
   <div class="match-detail">
-    <div class="top">赛事信息 <el-button class="return" size="medium" type="primary">返回</el-button></div>
+    <div class="top">赛事信息 <el-button class="return" size="medium" type="primary" @click="goBack">返回</el-button></div>
     <div class="team">
         <div class="host">
             <div class="name">{{hostName}}</div>
@@ -239,10 +239,10 @@ export default {
     }
   },
   created () {
-    this.getData()
   },
   methods: {
-    getData () {
+    goBack () {
+      this.$router.push({name: '赛事/彩期'})
     }
   }
 }

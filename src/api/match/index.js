@@ -2,7 +2,7 @@ import request from '../index'
 const config = {
 //   得到赛事列表数据
   getMatchList: {
-    url: 'matchData/getMatchListPage.json',
+    url: 'admin/matchData/getMatchListPage.json',
     method: 'post'
   }
 }
